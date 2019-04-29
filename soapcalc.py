@@ -1,98 +1,16 @@
 import math
 import numpy as np
+import json
 
 quantities = {
-    "olive_oil": 0.1,
+    "olive_oil": 0,
     "palm_oil": 0,
-    "lard": 0.450,
-    "coconut_oil": 0.235,
-    "castor_oil": 0.14,
-    "avocado_oil": 0.07,
-    "almond_oil": 0.05,
+    "lard": 0,
+    "coconut_oil": 0,
+    "castor_oil": 0,
+    "avocado_oil": 0,
+    "almond_oil": 0,
     "ricebran_oil": 0
-}
-
-ingredients = {
-    "olive_oil": {
-        "hardness": 33,
-        "cleansing": 1,
-        "condition": 59,
-        "bubbly": 1,
-        "creamy": 32,
-        "iodine": 69,
-        "ins": 130,
-        "price": 4.8
-    },
-    "palm_oil": {
-        "hardness": 50,
-        "cleansing": 1,
-        "condition": 49,
-        "bubbly": 1,
-        "creamy": 49,
-        "iodine": 53,
-        "ins": 145,
-        "price": 2.1
-    },
-    "lard": {
-        "hardness": 42,
-        "cleansing": 1,
-        "condition": 52,
-        "bubbly": 1,
-        "creamy": 41,
-        "iodine": 57,
-        "ins": 139,
-        "price": 0
-    },
-    "coconut_oil": {
-        "hardness": 79,
-        "cleansing": 67,
-        "condition": 10,
-        "bubbly": 67,
-        "creamy": 12,
-        "iodine": 10,
-        "ins": 258,
-        "price": 3.85
-    },
-    "castor_oil": {
-        "hardness": 0,
-        "cleansing": 0,
-        "condition": 98,
-        "bubbly": 90,
-        "creamy": 90,
-        "iodine": 86,
-        "ins": 95,
-        "price": 3.36
-    },
-    "avocado_oil": {
-        "hardness": 22,
-        "cleansing": 0,
-        "condition": 70,
-        "bubbly": 0,
-        "creamy": 22,
-        "iodine": 86,
-        "ins": 99,
-        "price": 6.40
-    },
-    "almond_oil": {
-        "hardness": 7,
-        "cleansing": 0,
-        "condition": 89,
-        "bubbly": 0,
-        "creamy": 7,
-        "iodine": 99,
-        "ins": 97,
-        "price": 5.60
-    },
-    "ricebran_oil": {
-        "hardness": 26,
-        "cleansing": 1,
-        "condition": 74,
-        "bubbly": 1,
-        "creamy": 25,
-        "iodine": 100,
-        "ins": 87,
-        "price": 3.25
-    }
 }
 
 desired_soap = {
@@ -105,6 +23,12 @@ desired_soap = {
     "ins": 160,
     "price": 3
 }
+
+#Read JSON data into the ingredients dict
+filename = 'ingredients.json'
+if filename:
+    with open(filename, 'r') as f:
+        ingredients = json.loads(f.read())
 
 increment = 0.001
 
