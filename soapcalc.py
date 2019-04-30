@@ -2,6 +2,9 @@ import math
 import numpy as np
 import json
 import matplotlib.pyplot as plt
+import getopt
+import sys
+from tqdm import tqdm
 
 quantities = {
     "olive_oil": 0,
@@ -65,10 +68,29 @@ def find_ingredient_highest_lowest(property, ingredients):
 def main():
     loop_best_error = 100
     increment = 0.001
-    loop = 500
-    excluded_ingrs = ['palm_oil']
+    loops = 100
+    excluded_ingrs = []
+    enable_graphs = False
 
-    for i in range(loop):
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hgi:l:e:", ["graphs", "increment=", "loops=", "excl_ingredients="])
+    except getopt.GetoptError:
+        print("python3 -g -i 0.001 -l 1000 -e palm_oil")
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == "-h":
+            print("python3 -g -i 0.001 -l 1000 -e palm_oil")
+            sys.exit()
+        elif opt in ("-g", "--graphs"):
+            enable_graphs = True
+        elif opt in ("-i", "--increment"):
+            increment = float(arg)
+        elif opt in ("-l", "--loops"):
+            loops = int(arg)
+        elif opt in ("-e", "--excl_ingredients"):
+            excluded_ingrs = arg.split(',')
+
+    for i in tqdm(range(loops)):
         # Read JSON data into the ingredients dict
         ingredients_filename = 'ingredients.json'
         if ingredients_filename:
@@ -88,7 +110,7 @@ def main():
 
         best_quantities = quantities
 
-        print("Executing loop %d of %d..." % (int(i+1), loop))
+        #print("Executing loop %d of %d..." % (int(i+1), loops))
         counter = 0
         # Start with random proportions for each ingredient by using a Dirichlet distribution
         quantity = np.round(np.random.dirichlet(np.ones(len(ingredients)),size=1),4).tolist()[0]
@@ -151,38 +173,40 @@ def main():
     print("RMS Error:", loop_best_error)
     print("Soap recipe:", best_quantities)
 
-    plt.figure("Cold-process soap recipe generator")
+    if enable_graphs:
+        # TODO: Fix bug in which the recipe columns with a 0% quantity don't display their label
+        plt.figure("Cold-process soap recipe generator")
 
-    y1_pos = np.arange(len(best_quantities))
+        y1_pos = np.arange(len(best_quantities))
 
-    ax1 = plt.subplot(2,1,1)
-    plt.xticks(y1_pos, ingredients)
-    plt.ylabel('Quantity')
-    plt.xlabel('Ingredients')
-    plt.title('Soap recipe')
-    plt.grid(which='major', axis='y', linestyle=':', alpha=0.5, linewidth=1)
-    quantities_chart = plt.bar(y1_pos, best_quantities.values(), align='center', alpha=0.5)
-    for quantity in quantities_chart:
-            height = quantity.get_height()
-            ax1.text(quantity.get_x() + quantity.get_width()/2., 1.05*height,'%.1f%%' % float(height*100), ha='center', va='bottom')
+        ax1 = plt.subplot(2,1,1)
+        plt.xticks(y1_pos, ingredients)
+        plt.ylabel('Quantity')
+        plt.xlabel('Ingredients')
+        plt.title('Soap recipe')
+        plt.grid(which='major', axis='y', linestyle=':', alpha=0.5, linewidth=1)
+        quantities_chart = plt.bar(y1_pos, best_quantities.values(), align='center', alpha=0.5)
+        for quantity in quantities_chart:
+                height = quantity.get_height()
+                ax1.text(quantity.get_x() + quantity.get_width()/2., 1.05*height,'%.1f%%' % float(height*100), ha='center', va='bottom')
 
-    y2_pos = np.arange(len(soap))
+        y2_pos = np.arange(len(soap))
 
-    ax2 = plt.subplot(2,1,2)
-    plt.xticks(y2_pos, soap)
-    plt.ylabel('Value')
-    plt.title('Soap characteristics')
-    plt.grid(which='major', axis='y', linestyle=':', alpha=0.5, linewidth=1)
-    properties_chart = plt.bar(y2_pos, soap.values(), align='center', alpha=0.5, color='g', label='Resulting soap')
-    plt.bar(y2_pos, desired_soap.values(), align='center', alpha=0.5, color='r', label='Desired soap')
-    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    plt.text(1, 1.1, "RMS Error: " + str(loop_best_error), transform=ax2.transAxes, ha='right', va='top', fontsize=8, bbox=props)
-    height = properties_chart[7].get_height()
-    ax2.text(properties_chart[7].get_x() + properties_chart[7].get_width() / 2., 1.05 * height, '$%.2f' % float(height), ha='center', va='bottom')
+        ax2 = plt.subplot(2,1,2)
+        plt.xticks(y2_pos, soap)
+        plt.ylabel('Value')
+        plt.title('Soap characteristics')
+        plt.grid(which='major', axis='y', linestyle=':', alpha=0.5, linewidth=1)
+        properties_chart = plt.bar(y2_pos, soap.values(), align='center', alpha=0.5, color='g', label='Resulting soap')
+        plt.bar(y2_pos, desired_soap.values(), align='center', alpha=0.5, color='r', label='Desired soap')
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        plt.text(1, 1.1, "RMS Error: " + str(loop_best_error), transform=ax2.transAxes, ha='right', va='top', fontsize=8, bbox=props)
+        height = properties_chart[7].get_height()
+        ax2.text(properties_chart[7].get_x() + properties_chart[7].get_width() / 2., 1.05 * height, '$%.2f' % float(height), ha='center', va='bottom')
 
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
 
 
 if __name__ == "__main__":
