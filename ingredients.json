@@ -78,5 +78,55 @@
         "iodine": 100,
         "ins": 87,
         "price": 3.25
+    },
+    "argan_oil": {
+        "hardness": 15,
+        "cleansing": 1,
+        "condition": 81,
+        "bubbly": 1,
+        "creamy": 14,
+        "iodine": 95,
+        "ins": 95,
+        "price": 26
+    },
+    "grapeseed_oil": {
+        "hardness": 12,
+        "cleansing": 0,
+        "condition": 88,
+        "bubbly": 0,
+        "creamy": 12,
+        "iodine": 131,
+        "ins": 66,
+        "price": 5.65
+    },
+    "shea_butter": {
+        "hardness": 45,
+        "cleansing": 0,
+        "condition": 54,
+        "bubbly": 0,
+        "creamy": 45,
+        "iodine": 59,
+        "ins": 116,
+        "price": 6.9
+    },
+    "kukui_nut_oil": {
+        "hardness": 8,
+        "cleansing": 0,
+        "condition": 91,
+        "bubbly": 0,
+        "creamy": 8,
+        "iodine": 168,
+        "ins": 24,
+        "price": 13.6
+    },
+    "babassu_oil": {
+        "hardness": 85,
+        "cleansing": 70,
+        "condition": 10,
+        "bubbly": 70,
+        "creamy": 15,
+        "iodine": 15,
+        "ins": 230,
+        "price": 12
     }
 }

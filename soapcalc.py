@@ -6,17 +6,6 @@ import getopt
 import sys
 from tqdm import tqdm
 
-quantities = {
-    "olive_oil": 0,
-    "palm_oil": 0,
-    "lard": 0,
-    "coconut_oil": 0,
-    "castor_oil": 0,
-    "avocado_oil": 0,
-    "almond_oil": 0,
-    "ricebran_oil": 0
-}
-
 
 def rms_error(soap, desired_soap):
     error = 0.0
@@ -90,33 +79,30 @@ def main():
         elif opt in ("-e", "--excl_ingredients"):
             excluded_ingrs = arg.split(',')
 
+    # Read JSON data into the desired_soap dict
+    desired_soap_filename = 'desired_soap.json'
+    if desired_soap_filename:
+        with open(desired_soap_filename, 'r') as f:
+            desired_soap = json.loads(f.read())
+
+    # Read JSON data into the ingredients dict
+    ingredients_filename = 'ingredients.json'
+    if ingredients_filename:
+        with open(ingredients_filename, 'r') as f:
+            loaded_ingredients = json.loads(f.read())
+
+    for ingr in excluded_ingrs:
+        loaded_ingredients.pop(ingr)
+
     for i in tqdm(range(loops)):
-        # Read JSON data into the ingredients dict
-        ingredients_filename = 'ingredients.json'
-        if ingredients_filename:
-            with open(ingredients_filename, 'r') as f:
-                ingredients = json.loads(f.read())
 
-        # Read JSON data into the desired_soap dict
-        desired_soap_filename = 'desired_soap.json'
-        if desired_soap_filename:
-            with open(desired_soap_filename, 'r') as f:
-                desired_soap = json.loads(f.read())
+        ingredients = loaded_ingredients.copy()
 
-        for ingr in excluded_ingrs:
-            ingredients.pop(ingr)
-            if ingr in quantities.keys():
-                quantities.pop(ingr)
-
-        best_quantities = quantities
-
-        #print("Executing loop %d of %d..." % (int(i+1), loops))
-        counter = 0
         # Start with random proportions for each ingredient by using a Dirichlet distribution
         quantity = np.round(np.random.dirichlet(np.ones(len(ingredients)),size=1),4).tolist()[0]
-        for q in quantities:
-            quantities.update({q: quantity[counter]})
-            counter = counter + 1
+        quantities = dict(zip(list(ingredients.keys()), quantity))
+
+        best_quantities = quantities
 
         ingrs_to_remove = []
 
