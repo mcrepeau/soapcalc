@@ -160,13 +160,12 @@ def main():
     print("Soap recipe:", best_quantities)
 
     if enable_graphs:
-        # TODO: Fix bug in which the recipe columns with a 0% quantity don't display their label
         plt.figure("Cold-process soap recipe generator")
 
         y1_pos = np.arange(len(best_quantities))
 
         ax1 = plt.subplot(2,1,1)
-        plt.xticks(y1_pos, ingredients)
+        plt.xticks(y1_pos, best_quantities.keys())
         plt.ylabel('Quantity')
         plt.xlabel('Ingredients')
         plt.title('Soap recipe')
