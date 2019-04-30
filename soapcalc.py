@@ -18,11 +18,7 @@ quantities = {
 def rms_error(soap, desired_soap):
     error = 0.0
     for property, value in soap.items():
-        # Here I don't care about optimizing the price so I don't want it to have any impact on the error
-        if property == "price":
-            error = error
-        else:
-            error = error + (value - desired_soap[property]) ** 2
+        error = error + (value - desired_soap[property]) ** 2
 
     return round(math.sqrt(error/len(desired_soap)), 6)
 
@@ -70,6 +66,7 @@ def main():
     loop_best_error = 100
     increment = 0.001
     loop = 500
+    excluded_ingrs = ['palm_oil']
 
     for i in range(loop):
         # Read JSON data into the ingredients dict
@@ -83,6 +80,11 @@ def main():
         if desired_soap_filename:
             with open(desired_soap_filename, 'r') as f:
                 desired_soap = json.loads(f.read())
+
+        for ingr in excluded_ingrs:
+            ingredients.pop(ingr)
+            if ingr in quantities.keys():
+                quantities.pop(ingr)
 
         best_quantities = quantities
 
@@ -147,11 +149,11 @@ def main():
     # If the RMS error is higher than the stored value, stop and print quantities and resulting soap
     print("Soap characteristics:", property_calc(ingredients, best_quantities))
     print("RMS Error:", loop_best_error)
-    print("Soap recipe:", quantities)
+    print("Soap recipe:", best_quantities)
 
     plt.figure("Cold-process soap recipe generator")
 
-    y1_pos = np.arange(len(quantities))
+    y1_pos = np.arange(len(best_quantities))
 
     ax1 = plt.subplot(2,1,1)
     plt.xticks(y1_pos, ingredients)
@@ -159,12 +161,12 @@ def main():
     plt.xlabel('Ingredients')
     plt.title('Soap recipe')
     plt.grid(which='major', axis='y', linestyle=':', alpha=0.5, linewidth=1)
-    quantities_chart = plt.bar(y1_pos, quantities.values(), align='center', alpha=0.5)
+    quantities_chart = plt.bar(y1_pos, best_quantities.values(), align='center', alpha=0.5)
     for quantity in quantities_chart:
             height = quantity.get_height()
             ax1.text(quantity.get_x() + quantity.get_width()/2., 1.05*height,'%.1f%%' % float(height*100), ha='center', va='bottom')
 
-    y2_pos = np.arange(len(quantities))
+    y2_pos = np.arange(len(soap))
 
     ax2 = plt.subplot(2,1,2)
     plt.xticks(y2_pos, soap)
