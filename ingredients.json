@@ -128,5 +128,15 @@
         "iodine": 15,
         "ins": 230,
         "price": 12
+    },
+    "cocoa_butter": {
+        "hardness": 61,
+        "cleansing": 0,
+        "condition": 38,
+        "bubbly": 0,
+        "creamy": 61,
+        "iodine": 37,
+        "ins": 157,
+        "price": 10.95
     }
 }

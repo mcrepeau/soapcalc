@@ -88,7 +88,7 @@ def main():
     excluded_ingrs = []
     enable_graphs = False
     global verbose
-    max_price = 3
+    max_price = 5
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hgi:l:e:v", ["graphs", "increment=", "loops=", "excl_ingredients="])
@@ -130,6 +130,7 @@ def main():
 
     for i in tqdm(range(loops)):
 
+        debug_print("Loop " + str(i))
         ingredients = loaded_ingredients.copy()
 
         # Start with random proportions for each ingredient by using a Dirichlet distribution
@@ -185,6 +186,10 @@ def main():
             if new_error < loop_best_error and new_soap['price'] <= max_price:
                 loop_best_error = new_error
                 best_quantities = new_quantities.copy()
+
+    if len(best_quantities) == 0:
+        print("The algorithm failed to generate a recipe within the given parameters")
+        exit()
 
     best_soap = property_calc(loaded_ingredients, best_quantities)
     # If the RMS error is higher than the stored value, stop and print quantities and resulting soap
