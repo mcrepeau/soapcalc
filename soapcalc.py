@@ -6,35 +6,37 @@ import getopt
 import sys
 from tqdm import tqdm
 
+verbose = False
+
 
 def rms_error(soap, desired_soap):
     error = 0.0
     for property, value in soap.items():
-        error = error + (value - desired_soap[property]) ** 2
+        error = error + ((value - desired_soap[property]) ** 2)
 
     return round(math.sqrt(error/len(desired_soap)), 6)
 
 
-def largest_diff(soap, ingrs_to_remove, desired_soap):
+def largest_diff(soap, props_to_ignore, desired_soap):
     diff = 0.0
     prop = ""
-    diffs = {}
+    debug_print("Properties to ignore:" + str(props_to_ignore))
     for property, value in soap.items():
-        if property not in ingrs_to_remove:
-            diffs.update({property: math.fabs((value - desired_soap[property]))})
+        if property not in props_to_ignore:
             d = math.fabs((value - desired_soap[property]))
             if d > diff:
                 diff = d
                 prop = property
-    #print("Diffs:", diffs)
     return prop, diff
 
 
 def property_calc(ingredients, quantities):
-    resulting_soap = {"hardness": 0,"cleansing": 0,"condition": 0,"bubbly": 0,"creamy": 0,"iodine": 0,"ins": 0,"price": 0}
+    resulting_soap = {"hardness": 0, "cleansing": 0, "condition": 0, "bubbly": 0, "creamy": 0, "iodine": 0, "ins": 0,
+                      "price": 0}
     for ingredient, properties in ingredients.items():
         for property, value in ingredients[ingredient].items():
             resulting_soap.update({property: round(resulting_soap[property] + (value * quantities[ingredient]),2)})
+
     return resulting_soap
 
 
@@ -44,31 +46,58 @@ def find_ingredient_highest_lowest(property, ingredients):
     low_value = 100
     low_ingr = ""
     for ingredient, properties in ingredients.items():
-        if properties[property] > high_value:
+        if properties[property] >= high_value:
             high_value = properties[property]
             high_ingr = ingredient
-        if properties[property] < low_value:
+        if properties[property] <= low_value:
             low_value = properties[property]
             low_ingr = ingredient
 
     return low_ingr, high_ingr
 
 
+def adjust_recipe(ingredients, prop_largest_diff, quantities, increment):
+    # Find ingredients with the lowest and highest values for that property
+    lowest_highest = find_ingredient_highest_lowest(prop_largest_diff, ingredients)
+
+    debug_print("Ingredients with the lowest and highest values for that property:" + str(lowest_highest))
+
+    # Add and Subtract the quantities for those ingredients by the increment
+    if (quantities[lowest_highest[0]] - increment) < 0:
+        # If the quantity left for an ingredient is inferior to 0
+        quantities.update({lowest_highest[1]: round(quantities[lowest_highest[1]] + quantities[lowest_highest[0]], 3)})
+        quantities.update({lowest_highest[0]: 0})
+        # Remove from ingredients list
+        debug_print("Removing ingredient:" + str(lowest_highest[0]))
+        del ingredients[lowest_highest[0]]
+    else:
+        quantities.update({lowest_highest[0]: round(quantities[lowest_highest[0]] - increment, 3)})
+        quantities.update({lowest_highest[1]: round(quantities[lowest_highest[1]] + increment, 3)})
+
+    return quantities
+
+
+def debug_print(debug):
+    if verbose:
+        print(debug)
+
+
 def main():
-    loop_best_error = 100
     increment = 0.001
     loops = 100
     excluded_ingrs = []
     enable_graphs = False
+    global verbose
+    max_price = 3
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hgi:l:e:", ["graphs", "increment=", "loops=", "excl_ingredients="])
+        opts, args = getopt.getopt(sys.argv[1:], "hgi:l:e:v", ["graphs", "increment=", "loops=", "excl_ingredients="])
     except getopt.GetoptError:
-        print("python3 -g -i 0.001 -l 1000 -e palm_oil")
+        print("python3 -g -i 0.001 -l 1000 -e palm_oil -v")
         sys.exit(2)
     for opt, arg in opts:
         if opt == "-h":
-            print("python3 -g -i 0.001 -l 1000 -e palm_oil")
+            print("python3 -g -i 0.001 -l 1000 -e palm_oil -v")
             sys.exit()
         elif opt in ("-g", "--graphs"):
             enable_graphs = True
@@ -78,6 +107,8 @@ def main():
             loops = int(arg)
         elif opt in ("-e", "--excl_ingredients"):
             excluded_ingrs = arg.split(',')
+        elif opt in ("-v", "--verbose"):
+            verbose = True
 
     # Read JSON data into the desired_soap dict
     desired_soap_filename = 'desired_soap.json'
@@ -94,6 +125,9 @@ def main():
     for ingr in excluded_ingrs:
         loaded_ingredients.pop(ingr)
 
+    loop_best_error = 100
+    best_quantities = {}
+
     for i in tqdm(range(loops)):
 
         ingredients = loaded_ingredients.copy()
@@ -101,10 +135,9 @@ def main():
         # Start with random proportions for each ingredient by using a Dirichlet distribution
         quantity = np.round(np.random.dirichlet(np.ones(len(ingredients)),size=1),4).tolist()[0]
         quantities = dict(zip(list(ingredients.keys()), quantity))
+        debug_print("Quantities:" + str(quantities))
 
-        best_quantities = quantities
-
-        ingrs_to_remove = []
+        props_to_ignore = []
 
         while True:
             # Calculate properties
@@ -112,50 +145,50 @@ def main():
 
             # Store RMS error value
             error = rms_error(soap, desired_soap)
-
-            #print("RMS Error:", error)
+            debug_print("RMS Error:" + str(error))
 
             # Find the property with the largest differential
-            ingr_largest_diff = largest_diff(soap, ingrs_to_remove, desired_soap)
+            prop_largest_diff = largest_diff(soap, props_to_ignore, desired_soap)
+            debug_print("Property with biggest differential:" + str(prop_largest_diff))
 
-            #print("Property with biggest differential:", ingr_largest_diff)
+            # If there are no property to adjust, we exit the loop
+            if prop_largest_diff[0] == '':
+                break
 
-            # Find ingredients with the lowest and highest values for that property
-            lowest_highest = find_ingredient_highest_lowest(ingr_largest_diff[0], ingredients)
+            # Otherwise we adjust the recipe to try to narrow the gap
+            new_quantities = adjust_recipe(ingredients, prop_largest_diff[0], quantities, increment)
+            debug_print("New quantities:" + str(new_quantities))
 
-            #print("Ingredients with the lowest and highest values for that property:", lowest_highest)
-
-            # Add and Subtract the quantities for those ingredients by the increment
-            if (quantities[lowest_highest[0]] - increment) < 0:
-                # If the quantity left for an ingredient is inferior to 0
-                quantities.update(
-                    {lowest_highest[1]: round(quantities[lowest_highest[1]] + quantities[lowest_highest[0]], 3)})
-                quantities.update({lowest_highest[0]: 0})
-                # Remove from ingredients list
-                del ingredients[lowest_highest[0]]
-            else:
-                quantities.update({lowest_highest[0]: round(quantities[lowest_highest[0]] - increment, 3)})
-                quantities.update({lowest_highest[1]: round(quantities[lowest_highest[1]] + increment, 3)})
-
-            #print(quantities)
-            new_error = rms_error(property_calc(ingredients, quantities), desired_soap)
             # Recalculate properties and RMS error
-            # If the RMS error is lower or equal to the stored value, loop
+            new_soap = property_calc(ingredients, new_quantities)
+            new_error = rms_error(new_soap, desired_soap)
+
+            debug_print("New RMS Error:" + str(new_error))
+
+            # If the RMS error is higher than or equal to to the error before optimizing, loop
             if new_error >= error:
                 # Try optimizing the next best diff property
-                ingrs_to_remove.append(ingr_largest_diff[0])
-                if len(ingrs_to_remove) == 6:
-                    if new_error <= loop_best_error:
+                debug_print("Removing property:" + str(prop_largest_diff[0]))
+                props_to_ignore.append(prop_largest_diff[0])
+                if len(props_to_ignore) == (len(desired_soap) -1):
+                    # When we're down to too few ingredients, we save the recipe and stop the loop
+                    if error <= loop_best_error and soap['price'] <= max_price:
                         loop_best_error = error
-                        best_quantities = quantities
+                        best_quantities = quantities.copy()
                     break
 
-            if new_error <= loop_best_error:
-                loop_best_error = new_error
-                best_quantities = quantities
+            # Otherwise, we update the quantities for the next loop
+            else:
+                quantities = new_quantities
 
+            # If we did better than the best recipe in the for loop error, we save it
+            if new_error < loop_best_error and new_soap['price'] <= max_price:
+                loop_best_error = new_error
+                best_quantities = new_quantities.copy()
+
+    best_soap = property_calc(loaded_ingredients, best_quantities)
     # If the RMS error is higher than the stored value, stop and print quantities and resulting soap
-    print("Soap characteristics:", property_calc(ingredients, best_quantities))
+    print("Soap characteristics:", best_soap)
     print("RMS Error:", loop_best_error)
     print("Soap recipe:", best_quantities)
 
@@ -182,7 +215,7 @@ def main():
         plt.ylabel('Value')
         plt.title('Soap characteristics')
         plt.grid(which='major', axis='y', linestyle=':', alpha=0.5, linewidth=1)
-        properties_chart = plt.bar(y2_pos, soap.values(), align='center', alpha=0.5, color='g', label='Resulting soap')
+        properties_chart = plt.bar(y2_pos, best_soap.values(), align='center', alpha=0.5, color='g', label='Resulting soap')
         plt.bar(y2_pos, desired_soap.values(), align='center', alpha=0.5, color='r', label='Desired soap')
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         plt.text(1, 1.1, "RMS Error: " + str(loop_best_error), transform=ax2.transAxes, ha='right', va='top', fontsize=8, bbox=props)
