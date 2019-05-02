@@ -213,10 +213,10 @@ def main():
                 height = quantity.get_height()
                 ax1.text(quantity.get_x() + quantity.get_width()/2., 1.05*height,'%.1f%%' % float(height*100), ha='center', va='bottom')
 
-        y2_pos = np.arange(len(soap))
+        y2_pos = np.arange(len(best_soap))
 
         ax2 = plt.subplot(2,1,2)
-        plt.xticks(y2_pos, soap)
+        plt.xticks(y2_pos, best_soap)
         plt.ylabel('Value')
         plt.title('Soap characteristics')
         plt.grid(which='major', axis='y', linestyle=':', alpha=0.5, linewidth=1)
