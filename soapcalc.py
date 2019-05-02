@@ -93,11 +93,11 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hgi:l:e:v", ["graphs", "increment=", "loops=", "excl_ingredients="])
     except getopt.GetoptError:
-        print("python3 -g -i 0.001 -l 1000 -e palm_oil -v")
+        print("python3 [-g] [-i <increment>] [-l <loops>] [-e <ingredient>,...] [-v]")
         sys.exit(2)
     for opt, arg in opts:
         if opt == "-h":
-            print("python3 -g -i 0.001 -l 1000 -e palm_oil -v")
+            print("python3 [-g] [-i <increment>] [-l <loops>] [-e <ingredient>,...] [-v]")
             sys.exit()
         elif opt in ("-g", "--graphs"):
             enable_graphs = True
