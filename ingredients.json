@@ -1,13 +1,13 @@
 {
     "olive_oil": {
-        "hardness": 33,
-        "cleansing": 1,
-        "condition": 59,
-        "bubbly": 1,
-        "creamy": 32,
-        "iodine": 69,
-        "ins": 130,
-        "price": 4.8
+        "hardness": 17,
+        "cleansing": 0,
+        "condition": 82,
+        "bubbly": 0,
+        "creamy": 17,
+        "iodine": 85,
+        "ins": 105,
+        "price": 6.49
     },
     "palm_oil": {
         "hardness": 50,
@@ -17,7 +17,7 @@
         "creamy": 49,
         "iodine": 53,
         "ins": 145,
-        "price": 2.1
+        "price": 2.99
     },
     "lard": {
         "hardness": 42,
@@ -37,7 +37,7 @@
         "creamy": 12,
         "iodine": 10,
         "ins": 258,
-        "price": 3.85
+        "price": 3.99
     },
     "castor_oil": {
         "hardness": 0,
@@ -47,7 +47,7 @@
         "creamy": 90,
         "iodine": 86,
         "ins": 95,
-        "price": 3.36
+        "price": 4.79
     },
     "avocado_oil": {
         "hardness": 22,
@@ -57,7 +57,7 @@
         "creamy": 22,
         "iodine": 86,
         "ins": 99,
-        "price": 6.40
+        "price": 7.59
     },
     "almond_oil": {
         "hardness": 7,
@@ -67,7 +67,7 @@
         "creamy": 7,
         "iodine": 99,
         "ins": 97,
-        "price": 5.60
+        "price": 6.99
     },
     "ricebran_oil": {
         "hardness": 26,
@@ -77,7 +77,7 @@
         "creamy": 25,
         "iodine": 100,
         "ins": 87,
-        "price": 3.25
+        "price": 3.99
     },
     "argan_oil": {
         "hardness": 15,
@@ -87,7 +87,7 @@
         "creamy": 14,
         "iodine": 95,
         "ins": 95,
-        "price": 26
+        "price": 32.79
     },
     "grapeseed_oil": {
         "hardness": 12,
@@ -97,7 +97,7 @@
         "creamy": 12,
         "iodine": 131,
         "ins": 66,
-        "price": 5.65
+        "price": 6.09
     },
     "shea_butter": {
         "hardness": 45,
@@ -107,7 +107,7 @@
         "creamy": 45,
         "iodine": 59,
         "ins": 116,
-        "price": 6.9
+        "price": 7.99
     },
     "kukui_nut_oil": {
         "hardness": 8,
@@ -117,7 +117,7 @@
         "creamy": 8,
         "iodine": 168,
         "ins": 24,
-        "price": 13.6
+        "price": 14.09
     },
     "babassu_oil": {
         "hardness": 85,
@@ -127,7 +127,7 @@
         "creamy": 15,
         "iodine": 15,
         "ins": 230,
-        "price": 12
+        "price": 13.39
     },
     "cocoa_butter": {
         "hardness": 61,
@@ -137,6 +137,16 @@
         "creamy": 61,
         "iodine": 37,
         "ins": 157,
-        "price": 10.95
+        "price": 9.99
+    },
+    "sunflower_oil": {
+	"hardness": 11,
+	"cleansing": 0,
+	"condition": 87,
+	"bubbly": 0,
+	"creamy": 11,
+	"iodine": 133,
+	"ins": 63,
+	"price": 4.29
     }
 }

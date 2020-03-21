@@ -43,7 +43,7 @@ def property_calc(ingredients, quantities):
 def find_ingredient_highest_lowest(property, ingredients):
     high_value = 0.0
     high_ingr = ""
-    low_value = 100
+    low_value = 1000
     low_ingr = ""
     for ingredient, properties in ingredients.items():
         if properties[property] >= high_value:
@@ -88,7 +88,7 @@ def main():
     excluded_ingrs = []
     enable_graphs = False
     global verbose
-    max_price = 5
+    max_price = 6
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hgi:l:e:v", ["graphs", "increment=", "loops=", "excl_ingredients="])
@@ -124,6 +124,10 @@ def main():
 
     for ingr in excluded_ingrs:
         loaded_ingredients.pop(ingr)
+
+    if len(loaded_ingredients) < 2:
+        print("At least 2 ingredients are needed")
+        exit()
 
     loop_best_error = 100
     best_quantities = {}
